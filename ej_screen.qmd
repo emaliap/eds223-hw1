@@ -1,0 +1,114 @@
+---
+title: "EDS 223 HW 1: Map making practice"
+author: "Emalia Partlow"
+warning: false
+---
+
+## Load packages
+```{r}
+library(tidyverse)
+library(sf)
+library(here)
+library(tmap)
+library(janitor)
+library(kableExtra)
+library(dplyr)
+```
+
+## Load data
+```{r}
+# Read in geodatabase of EJScreen data at the Census Block Group level
+ejscreen <- sf::st_read(here::here("data", "ejscreen","EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb")) |> 
+    clean_names()
+```
+
+## Initial data exploration
+```{r}
+# Check dataframe dimensions
+dim(ejscreen)
+
+# Check column names
+names(ejscreen)
+
+# Look at first 3 rows
+head(ejscreen, n = 3) |> 
+  kable()|> 
+  kable_styling()
+```
+
+## Filter
+```{r}
+# Filter to California
+ca <- ejscreen |> 
+  dplyr::filter(st_abbrev == "CA")
+
+# Check new dimensions
+dim(ca)
+
+# Check that filtered to CA correctly
+ca |> 
+    distinct(st_abbrev)
+```
+
+## Aggregate
+```{r}
+# Find average values for all variables within counties
+ca_counties <- aggregate(ca, by = list(ca$cnty_name), FUN = mean)
+
+# Check new dimensions
+dim(ca_counties)
+
+# Check that filtered to CA correctly. WHY DOES THE COUNTY CONUMN ONLY HAVE NAS NOW?
+ca_counties|> 
+    count(cnty_name)
+```
+
+```{r}
+glimpse(ca_counties) # want 'lowincpct', 'cancer', 'rsei_air'
+```
+
+## Map
+```{r}
+tm_shape(ca_counties) +
+tm_graticules() +
+    tm_polygons(
+        fill = 'p_lowincpct',
+        fill.scale = tm_scale_continuous(values = c('white', 'darkgreen')),
+        fill.legend = tm_legend(title = 'Low income percentile',
+                            position = tm_pos_out('right', 'center')) 
+    ) +
+tm_compass(position = c('right', 'top')) +
+tm_scalebar(position = c('left', 'bottom')) +
+tm_title('Low income communities in California') +
+tm_legend(position = tm_pos_out('right', 'center'))
+```
+
+```{r}
+tm_shape(ca_counties) +
+tm_graticules() +
+    tm_polygons(
+        fill = 'p_cancer',
+        fill.scale = tm_scale_continuous(values = c('white', 'darkgreen')),
+        fill.legend = tm_legend(title = 'Risk percentile',
+                            position = tm_pos_out('right', 'center')) 
+    ) +
+tm_compass(position = c('right', 'top')) +
+tm_scalebar(position = c('left', 'bottom')) +
+tm_title('Risk of air toxics cancer in California') +
+tm_legend(position = tm_pos_out('right', 'center'))
+```
+
+```{r}
+tm_shape(ca_counties) +
+tm_graticules() +
+    tm_polygons(
+        fill = 'p_rsei_air',
+        fill.scale = tm_scale_continuous(values = c('white', 'darkgreen')),
+        fill.legend = tm_legend(title = 'Percent toxic release to air',
+                            position = tm_pos_out('right', 'center')) 
+    ) +
+tm_compass(position = c('right', 'top')) +
+tm_scalebar(position = c('left', 'bottom')) +
+tm_title('Toxic release to air California') +
+tm_legend(position = tm_pos_out('right', 'center'))
+```

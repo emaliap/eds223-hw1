@@ -27,88 +27,59 @@ ejscreen <- sf::st_read(here::here("data", "ejscreen","EJSCREEN_2023_BG_StatePct
 # Check dataframe dimensions
 dim(ejscreen)
 
-# Check column names
-names(ejscreen)
-
 # Look at first 3 rows
 head(ejscreen, n = 3) |> 
   kable()|> 
   kable_styling()
 ```
 
-## Filter
+## Filter to Monterey county
 ```{r}
-# Filter to California
-ca <- ejscreen |> 
-  dplyr::filter(st_abbrev == "CA")
+# Filter to Monterey
+monterey <- ejscreen |> 
+    dplyr::filter(st_abbrev == 'CA') |> 
+    dplyr::filter((cnty_name == 'Monterey County'))
 
 # Check new dimensions
-dim(ca)
+dim(monterey)
 
-# Check that filtered to CA correctly
-ca |> 
-    distinct(st_abbrev)
+# Check that filtered to Monterey correctly
+monterey |> 
+    distinct(cnty_name)
 ```
 
-## Aggregate
+## Map of people of color in Monterey
 ```{r}
-# Find average values for all variables within counties
-ca_counties <- aggregate(ca, by = list(ca$cnty_name), FUN = mean)
-
-# Check new dimensions
-dim(ca_counties)
-
-# Check that filtered to CA correctly. WHY DOES THE COUNTY CONUMN ONLY HAVE NAS NOW?
-ca_counties|> 
-    count(cnty_name)
-```
-
-```{r}
-glimpse(ca_counties) # want 'lowincpct', 'cancer', 'rsei_air'
-```
-
-## Map
-```{r}
-tm_shape(ca_counties) +
+tm_shape(monterey) +
 tm_graticules() +
     tm_polygons(
-        fill = 'p_lowincpct',
+        fill = 'p_peopcolorpct',
         fill.scale = tm_scale_continuous(values = c('white', 'darkgreen')),
-        fill.legend = tm_legend(title = 'Low income percentile',
+        fill.legend = tm_legend(title = 'Percent people of color',
                             position = tm_pos_out('right', 'center')) 
     ) +
 tm_compass(position = c('right', 'top')) +
 tm_scalebar(position = c('left', 'bottom')) +
-tm_title('Low income communities in California') +
+tm_title('People of color in Monterey') +
 tm_legend(position = tm_pos_out('right', 'center'))
 ```
 
+## Map of Superfund proximity in Monterey
 ```{r}
-tm_shape(ca_counties) +
+tm_shape(monterey) +
 tm_graticules() +
     tm_polygons(
-        fill = 'p_cancer',
+        fill = 'p_pnpl',
         fill.scale = tm_scale_continuous(values = c('white', 'darkgreen')),
-        fill.legend = tm_legend(title = 'Risk percentile',
+        fill.legend = tm_legend(title = 'Superfund proximity percentile',
                             position = tm_pos_out('right', 'center')) 
     ) +
 tm_compass(position = c('right', 'top')) +
 tm_scalebar(position = c('left', 'bottom')) +
-tm_title('Risk of air toxics cancer in California') +
+tm_title('Superfund proximity in Monterey') +
 tm_legend(position = tm_pos_out('right', 'center'))
 ```
 
-```{r}
-tm_shape(ca_counties) +
-tm_graticules() +
-    tm_polygons(
-        fill = 'p_rsei_air',
-        fill.scale = tm_scale_continuous(values = c('white', 'darkgreen')),
-        fill.legend = tm_legend(title = 'Percent toxic release to air',
-                            position = tm_pos_out('right', 'center')) 
-    ) +
-tm_compass(position = c('right', 'top')) +
-tm_scalebar(position = c('left', 'bottom')) +
-tm_title('Toxic release to air California') +
-tm_legend(position = tm_pos_out('right', 'center'))
-```
+## Map interpretation
+
+The percent proximity to a Superfund site is highest at the northern end of Monterey county, which is also where there is the highest percentage of people of color. The areas closest to a Superfund site are consistent with the location of Fort Ord, a former U.S Army base that was established as a Superfund site by the EPA in 1990. These maps display that people of color may be more exposed to Fort Ord's contaminated soil, groundwater, and unexploded ordinances due to their close proximity to the Superfund site.

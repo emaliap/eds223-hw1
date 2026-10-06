@@ -35,7 +35,7 @@ To download the data yourself, click on this [Google Drive link](https://drive.g
 
 Data sourced from United States Environmental Protection Agency’s previous **EJScreen: Environmental Justice Screening and Mapping Tool**
 
-Superfund background sorced from the [EPA](https://www.epa.gov/superfund/what-superfund) and [Fort Ord](https://cumulis.epa.gov/supercpad/SiteProfiles/index.cfm?fuseaction=second.Cleanup&id=0902783#bkground) websites
+Superfund background sourced from the [EPA](https://www.epa.gov/superfund/what-superfund) and [Fort Ord](https://cumulis.epa.gov/supercpad/SiteProfiles/index.cfm?fuseaction=second.Cleanup&id=0902783#bkground) websites
 
 
  
